@@ -1,9 +1,15 @@
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Random;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -25,7 +31,7 @@ public class MainControl {
     int size;
     int countMove = 0;
     int countTime = 0;
-    final int SIZE_BUTTON = 40;
+    final int SIZE_BUTTON = 60;
     final int SIZE_GAP = 20;
     int sizeOfBoard = size * SIZE_BUTTON + (size - 1) * SIZE_GAP;
 
@@ -37,7 +43,10 @@ public class MainControl {
 
     private void control() {
         display.setVisible(true);
+        display.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        display.getPnlMainDisplay().setLayout(new GridBagLayout());
         statusBtnNewGame();
+        addCbnSize();
     }
 
     private void statusBtnNewGame() {
@@ -61,7 +70,7 @@ public class MainControl {
             // reset count move and time -> 0
             countMove = 0;
             countTime = 0;
-            
+
             display.getLblMoveCount().setText(countMove + "");
 
             canMove = true;
@@ -76,9 +85,27 @@ public class MainControl {
         });
     }
 
+    private void addCbnSize() {
+        display.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent componentEvent) {
+                int sizeBoard = display.getPnlMainDisplay().getSize().height;
+                int maxSize = (sizeBoard + SIZE_GAP) / (SIZE_BUTTON + SIZE_GAP);
+                System.out.println(maxSize);
+
+                DefaultComboBoxModel listSize = new DefaultComboBoxModel();
+                for (int i = 3; i < maxSize + 1; i++) {
+                    listSize.addElement(i);
+                }
+                String[] temp = {"a", "a"};
+                display.getCbxGameSize().setModel(listSize);
+            }
+        });
+    }
+
     // get size game in combo box
     private void getSize() {
-        size = display.getCbxGameSize().getSelectedIndex() + 3;
+        size = Integer.parseInt(display.getCbxGameSize().getSelectedItem() + "");
     }
 
     // method to display game board
@@ -109,8 +136,8 @@ public class MainControl {
             }
         }
 
-        display.pack();
         display.setVisible(true);
+        display.getPnlDisplayGame().setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 
     // method to shuffle all number in game
@@ -124,7 +151,7 @@ public class MainControl {
 
         int count = 0;
 
-        while (!(count++ > 100 && button[size - 1][size - 1].getText().equals(" "))) {
+        while (!(count++ > Math.pow(size, 4) && button[size - 1][size - 1].getText().equals(" "))) {
 
             switch (intRandom.nextInt(4)) {
 
@@ -160,9 +187,9 @@ public class MainControl {
                     }
                     break;
             }
-
+            
             whiteSpace = button[x][y];
-        }
+        }System.out.println("shuffle: "+ count);
     }
 
     // method to move will called by shuffle method
@@ -189,8 +216,6 @@ public class MainControl {
 
                     display.getLblTimeCount().setText(countTime + "");
                     countTime++;
-
-                    // each 1000ms Thread sleep
                     try {
                         Thread.sleep(1000);
                     } catch (Exception e) {
@@ -218,7 +243,7 @@ public class MainControl {
                     if (!canMove) {
                         return;
                     }
-                    
+
                     // move when button is spaceWhite
                     if (!(button[final_x][final_y].getText().equals(" "))) {
                         String number = button[final_x][final_y].getText();
@@ -271,7 +296,7 @@ public class MainControl {
         // 2 loop for check each elements
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                
+
                 // skip the last element
                 if (i == size - 1 && j == size - 1) {
                     continue;
@@ -288,7 +313,7 @@ public class MainControl {
         // set user can't move button and stop time
         canMove = false;
         time.stop();
-        
+
         return true;
     }
 
