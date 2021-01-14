@@ -1,8 +1,6 @@
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -23,17 +21,18 @@ import javax.swing.JFrame;
 public class MainControl {
 
     Display display;
-    JButton[][] button;
     GridLayout gridLayout;
     Random intRandom = new Random();
     Thread time = new Thread();
 
-    int size;
+    int size = 3;
+    int maxSize;
     int countMove = 0;
     int countTime = 0;
     final int SIZE_BUTTON = 60;
     final int SIZE_GAP = 20;
     int sizeOfBoard = size * SIZE_BUTTON + (size - 1) * SIZE_GAP;
+    JButton[][] button = new JButton[size][size];
 
     boolean canMove;
 
@@ -43,10 +42,12 @@ public class MainControl {
 
     private void control() {
         display.setVisible(true);
+        display.setResizable(false);
         display.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        display.getPnlMainDisplay().setLayout(new GridBagLayout());
+//        display.getPnlMainDisplay().setLayout(new GridBagLayout());
         statusBtnNewGame();
         addCbnSize();
+        displayBoardGame();
     }
 
     private void statusBtnNewGame() {
@@ -90,14 +91,15 @@ public class MainControl {
             @Override
             public void componentResized(ComponentEvent componentEvent) {
                 int sizeBoard = display.getPnlMainDisplay().getSize().height;
-                int maxSize = (sizeBoard + SIZE_GAP) / (SIZE_BUTTON + SIZE_GAP);
+                int temp = (sizeBoard + SIZE_GAP) / (SIZE_BUTTON + SIZE_GAP);
+                if (temp < maxSize) return;
+                maxSize = temp;
                 System.out.println(maxSize);
 
                 DefaultComboBoxModel listSize = new DefaultComboBoxModel();
                 for (int i = 3; i < maxSize + 1; i++) {
                     listSize.addElement(i);
                 }
-                String[] temp = {"a", "a"};
                 display.getCbxGameSize().setModel(listSize);
             }
         });
@@ -113,20 +115,22 @@ public class MainControl {
         gridLayout = new GridLayout(size, size, SIZE_GAP, SIZE_GAP);
         display.getPnlDisplayGame().setSize(sizeOfBoard, sizeOfBoard);
         display.getPnlDisplayGame().setLayout(gridLayout);
-
-        int count = 0;
+            
+//        System.out.println("size:" + size);
+        
+        int count = 1;
 
         // display and setText for each button
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-
+//                System.out.println("count:" + count);
                 // with end button is " ", not number
                 if (count == size * size) {
                     button[i][j] = new JButton(" ");
                 } else {
-                    button[i][j] = new JButton(++count + "");
+                    button[i][j] = new JButton(count + "");
                 }
-
+                count++;
                 // set font and size for button
                 button[i][j].setPreferredSize(new Dimension(SIZE_BUTTON, SIZE_BUTTON));
                 button[i][j].setRequestFocusEnabled(false);
@@ -137,7 +141,7 @@ public class MainControl {
         }
 
         display.setVisible(true);
-        display.getPnlDisplayGame().setAlignmentX(Component.CENTER_ALIGNMENT);
+        display.pack();
     }
 
     // method to shuffle all number in game
@@ -187,9 +191,10 @@ public class MainControl {
                     }
                     break;
             }
-            
+
             whiteSpace = button[x][y];
-        }System.out.println("shuffle: "+ count);
+        }
+        System.out.println("shuffle: " + count);
     }
 
     // method to move will called by shuffle method
