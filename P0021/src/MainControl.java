@@ -2,6 +2,7 @@
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Random;
@@ -32,7 +33,7 @@ public class MainControl {
     final int SIZE_BUTTON = 60;
     final int SIZE_GAP = 20;
     int sizeOfBoard = size * SIZE_BUTTON + (size - 1) * SIZE_GAP;
-    JButton[][] button = new JButton[size][size];
+    JButton[][] button;
 
     boolean canMove;
 
@@ -43,8 +44,7 @@ public class MainControl {
     private void control() {
         display.setVisible(true);
         display.setResizable(false);
-        display.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//        display.getPnlMainDisplay().setLayout(new GridBagLayout());
+        
         statusBtnNewGame();
         addCbnSize();
         displayBoardGame();
@@ -52,11 +52,6 @@ public class MainControl {
 
     private void statusBtnNewGame() {
         display.getBtnNewGame().addActionListener((e) -> {
-
-            // get number of column and row from combobox
-            getSize();
-
-            button = new JButton[size][size];
 
             // clean all elements in JPanel display game
             display.getPnlDisplayGame().removeAll();
@@ -87,22 +82,19 @@ public class MainControl {
     }
 
     private void addCbnSize() {
-        display.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent componentEvent) {
-                int sizeBoard = display.getPnlMainDisplay().getSize().height;
-                int temp = (sizeBoard + SIZE_GAP) / (SIZE_BUTTON + SIZE_GAP);
-                if (temp < maxSize) return;
-                maxSize = temp;
-                System.out.println(maxSize);
+        Toolkit tool = Toolkit.getDefaultToolkit();
+        Dimension di = tool.getScreenSize();
+        
+        int sizeBoard = di.height;
+        maxSize = (sizeBoard + SIZE_GAP) / (SIZE_BUTTON + SIZE_GAP);
+//        System.out.println(maxSize);
 
-                DefaultComboBoxModel listSize = new DefaultComboBoxModel();
-                for (int i = 3; i < maxSize + 1; i++) {
-                    listSize.addElement(i);
-                }
-                display.getCbxGameSize().setModel(listSize);
-            }
-        });
+        DefaultComboBoxModel listSize = new DefaultComboBoxModel();
+        for (int i = 3; i < maxSize + 1; i++) {
+            listSize.addElement(i);
+        }
+        display.getCbxGameSize().setModel(listSize);
+        display.getCbxGameSize().setSelectedIndex(3);
     }
 
     // get size game in combo box
@@ -112,12 +104,14 @@ public class MainControl {
 
     // method to display game board
     private void displayBoardGame() {
+        getSize();
+        button = new JButton[size][size];
+        
         gridLayout = new GridLayout(size, size, SIZE_GAP, SIZE_GAP);
         display.getPnlDisplayGame().setSize(sizeOfBoard, sizeOfBoard);
         display.getPnlDisplayGame().setLayout(gridLayout);
-            
+
 //        System.out.println("size:" + size);
-        
         int count = 1;
 
         // display and setText for each button
