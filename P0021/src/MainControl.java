@@ -259,7 +259,10 @@ public class MainControl {
                         //check and move right
                         move(final_x, final_y, final_x, final_y + 1);
                     }
-
+                    
+                    if (button[size - 1][size - 1].getText().equals(" ")) {
+                        isWin();
+                    }
                 });
             }
         }
@@ -312,6 +315,8 @@ public class MainControl {
         // set user can't move button and stop time
         canMove = false;
         time.stop();
+        
+        JOptionPane.showMessageDialog(display, "You Win !!!");
 
         return true;
     }
